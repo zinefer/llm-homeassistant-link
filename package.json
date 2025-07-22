@@ -1,0 +1,20 @@
+{
+  "name": "llm-homeassistant-link",
+  "version": "1.0.0",
+  "description": "A Node.js server to link LLMs with Home Assistant via API and message generation.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "lint": "eslint src/"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0",
+    "eslint": "^8.0.0"
+  }
+}

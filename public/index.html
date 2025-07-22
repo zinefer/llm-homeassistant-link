@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Message Generator</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --text: #334155;
+            --text-light: #64748b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        .header h1 {
+            color: var(--dark);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .primary-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-title i {
+            color: var(--primary);
+        }
+        
+        .generate-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 640px) {
+            .generate-section {
+                flex-direction: column;
+            }
+        }
+        
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: width 0.6s, height 0.6s;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), #7c3aed);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            color: white;
+        }
+        
+        .message-item {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .message-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+        
+        .message-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .message-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .message-type.regular {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+        
+        .message-type.special {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--secondary);
+        }
+        
+        .message-date {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .message-text {
+            width: 100%;
+            min-height: 100px;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.2s;
+            background: white;
+        }
+        
+        .message-text:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .message-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .comment-row {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .form-control {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: white;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .form-select {
+            flex: 0 0 120px;
+        }
+        
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .config-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .config-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .config-label {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 0.875rem;
+        }
+        
+        .status {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 300px;
+        }
+        
+        .status.show {
+            transform: translateX(0);
+        }
+        
+        .status.success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .status.error {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-light);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--border);
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .refresh-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .refresh-indicator.active {
+            opacity: 1;
+        }
+        
+        .collapsible {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapse-toggle {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: color 0.2s;
+        }
+        
+        .collapse-toggle:hover {
+            color: var(--primary);
+        }
+        
+        .collapse-toggle i {
+            transition: transform 0.2s;
+        }
+        
+        .collapse-toggle.collapsed i {
+            transform: rotate(-90deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-comments"></i> Message Generator</h1>
+            <p>Generate and manage messages with AI assistance</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="primary-section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-magic"></i>
+                            Generate Messages
+                        </div>
+                    </div>
+                    
+                    <div class="generate-section">
+                        <button class="btn btn-primary" onclick="generate(false)">
+                            <i class="fas fa-message"></i>
+                            Regular Message
+                        </button>
+                        <button class="btn btn-secondary" onclick="generate(true)">
+                            <i class="fas fa-star"></i>
+                            Special Message
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-inbox"></i>
+                            Pending Messages
+                        </div>
+                        <div class="refresh-indicator" id="refresh-indicator"></div>
+                    </div>
+                    <div id="messages">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading messages...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-comment-plus"></i>
+                            Add Comment
+                        </div>
+                    </div>
+                    
+                    <div class="comment-form">
+                        <input type="text" id="commentText" class="form-control" placeholder="Enter your comment...">
+                        <div class="comment-row">
+                            <select id="commentAuthor" class="form-control form-select">
+                                <option value="">UserA</option>
+                                <option value="">UserB</option>
+                            </select>
+                            <button class="btn btn-success" onclick="addComment()">
+                                <i class="fas fa-plus"></i>
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-cog"></i>
+                            Configuration
+                        </div>
+                        <button class="collapse-toggle" onclick="toggleConfig()" id="config-toggle">
+                            <i class="fas fa-chevron-down"></i>
+                            <span>Show/Hide</span>
+                        </button>
+                    </div>
+                    
+                    <div class="collapsible" id="config-section" style="max-height: 0;">
+                        <div id="config-form">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                Loading configuration...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let configExpanded = false;
+        
+        async function loadMessages() {
+            const indicator = document.getElementById('refresh-indicator');
+            indicator.classList.add('active');
+            
+            try {
+                const response = await fetch('/api/messages/unaccepted');
+                let messages = await response.json();
+                // Show newest first
+                messages = messages.slice().reverse();
+                const container = document.getElementById('messages');
+                if (messages.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h3>No pending messages</h3>
+                            <p>Generate a message to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+                container.innerHTML = messages.map((msg, index) => `
+                    <div class="message-item">
+                        <div class="message-meta">
+                            <span class="message-type ${msg.special ? 'special' : 'regular'}">
+                                <i class="fas fa-${msg.special ? 'star' : 'message'}"></i>
+                                ${msg.special ? 'Special' : 'Regular'}
+                            </span>
+                            <span class="message-date">
+                                <i class="fas fa-calendar"></i>
+                                ${new Date(msg.date).toLocaleString()}
+                            </span>
+                        </div>
+                        <textarea class="message-text" id="msg-${index}" placeholder="Edit your message here...">${msg.text}</textarea>
+                        <div class="message-actions">
+                            <button class="btn btn-success" onclick="acceptMessage(${index})">
+                                <i class="fas fa-check"></i>
+                                Accept
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('messages').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error loading messages</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                setTimeout(() => {
+                    indicator.classList.remove('active');
+                }, 300);
+            }
+        }
+        
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                const authorSelect = document.getElementById('commentAuthor');
+                authorSelect.options[0].value = config.userA;
+                authorSelect.options[0].text = config.userA;
+                authorSelect.options[1].value = config.userB;
+                authorSelect.options[1].text = config.userB;
+
+                document.getElementById('config-form').innerHTML = `
+                    <div class="config-grid">
+                        <div class="config-group">
+                            <label class="config-label">User A:</label>
+                            <input type="text" class="form-control" id="userA" value="${config.userA}">
+                        </div>
+                        <div class="config-group">
+                            <label class="config-label">User B:</label>
+                            <input type="text" class="form-control" id="userB" value="${config.userB}">
+                        </div>
+                        <div class="config-group">
+                            <label class="config-label">Data Directory:</label>
+                            <input type="text" class="form-control" id="dataDirectory" value="${config.dataDirectory}">
+                        </div>
+                        <div class="config-group">
+                            <label class="config-label">Ollama Host:</label>
+                            <input type="text" class="form-control" id="ollamaHost" value="${config.ollama.host}">
+                        </div>
+                        <div class="config-group">
+                            <label class="config-label">Ollama Port:</label>
+                            <input type="number" class="form-control" id="ollamaPort" value="${config.ollama.port}">
+                        </div>
+                        <div class="config-group">
+                            <label class="config-label">Ollama Model:</label>
+                            <input type="text" class="form-control" id="ollamaModel" value="${config.ollama.model}">
+                        </div>
+                        <div class="config-group">
+                            <label class="config-label">Home Assistant Host:</label>
+                            <input type="text" class="form-control" id="haHost" value="${config.homeAssistant.host}">
+                        </div>
+                        <div class="config-group">
+                            <label class="config-label">Home Assistant Port:</label>
+                            <input type="number" class="form-control" id="haPort" value="${config.homeAssistant.port}">
+                        </div>
+                        <div class="config-group">
+                            <label class="config-label">Default System Prompt:</label>
+                            <textarea class="form-control form-textarea" id="defaultPrompt">${config.systemPrompts.default}</textarea>
+                        </div>
+                        <div class="config-group">
+                            <label class="config-label">Special System Prompt:</label>
+                            <textarea class="form-control form-textarea" id="specialPrompt">${config.systemPrompts.special}</textarea>
+                        </div>
+                        <button class="btn btn-warning" onclick="saveConfig()" style="margin-top: 1rem;">
+                            <i class="fas fa-save"></i>
+                            Save Configuration
+                        </button>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('config-form').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error loading config</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function generate(special) {
+            const btn = event.target;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div> Generating...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ special })
+                });
+                
+                if (response.ok) {
+                    loadMessages();
+                    showStatus(`${special ? 'Special' : 'Regular'} message generated successfully!`, 'success');
+                } else {
+                    const error = await response.text();
+                    showStatus('Error generating message: ' + error, 'error');
+                }
+            } catch (error) {
+                showStatus('Error generating message: ' + error.message, 'error');
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+        
+        async function acceptMessage(index) {
+            const text = document.getElementById(`msg-${index}`).value;
+            const btn = event.target;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div>';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/accept', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                
+                if (response.ok) {
+                    loadMessages();
+                    showStatus('Message accepted successfully!', 'success');
+                } else {
+                    const error = await response.text();
+                    showStatus('Error accepting message: ' + error, 'error');
+                }
+            } catch (error) {
+                showStatus('Error accepting message: ' + error.message, 'error');
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+        
+        async function addComment() {
+            const text = document.getElementById('commentText').value;
+            const author = document.getElementById('commentAuthor').value;
+            
+            if (!text.trim()) {
+                showStatus('Please enter a comment', 'error');
+                return;
+            }
+            
+            const btn = event.target;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div>';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/comment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, author })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('commentText').value = '';
+                    showStatus('Comment added successfully!', 'success');
+                } else {
+                    const error = await response.text();
+                    showStatus('Error adding comment: ' + error, 'error');
+                }
+            } catch (error) {
+                showStatus('Error adding comment: ' + error.message, 'error');
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+        
+        async function saveConfig() {
+            const config = {
+                userA: document.getElementById('userA').value,
+                userB: document.getElementById('userB').value,
+                dataDirectory: document.getElementById('dataDirectory').value,
+                ollama: {
+                    host: document.getElementById('ollamaHost').value,
+                    port: parseInt(document.getElementById('ollamaPort').value),
+                    model: document.getElementById('ollamaModel').value
+                },
+                homeAssistant: {
+                    host: document.getElementById('haHost').value,
+                    port: parseInt(document.getElementById('haPort').value)
+                },
+                systemPrompts: {
+                    default: document.getElementById('defaultPrompt').value,
+                    special: document.getElementById('specialPrompt').value
+                }
+            };
+            
+            const btn = event.target;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div> Saving...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                if (response.ok) {
+                    showStatus('Configuration saved! Server will restart to apply changes.', 'success');
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    const error = await response.text();
+                    showStatus('Error saving config: ' + error, 'error');
+                }
+            } catch (error) {
+                showStatus('Error saving config: ' + error.message, 'error');
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+        
+        function toggleConfig() {
+            const section = document.getElementById('config-section');
+            const toggle = document.getElementById('config-toggle');
+            
+            configExpanded = !configExpanded;
+            
+            if (configExpanded) {
+                section.style.maxHeight = section.scrollHeight + 'px';
+                toggle.classList.remove('collapsed');
+            } else {
+                section.style.maxHeight = '0';
+                toggle.classList.add('collapsed');
+            }
+        }
+        
+        function showStatus(message, type) {
+            const existing = document.querySelector('.status');
+            if (existing) existing.remove();
+            
+            const status = document.createElement('div');
+            status.className = `status ${type}`;
+            status.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            document.body.appendChild(status);
+            
+            setTimeout(() => status.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                status.classList.remove('show');
+                setTimeout(() => status.remove(), 300);
+            }, 4000);
+        }
+        
+        // Initialize
+        loadMessages();
+        loadConfig();
+        
+        // Auto-refresh messages every 30 seconds
+        setInterval(loadMessages, 30000);
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            generate(true);
+                        } else {
+                            generate(false);
+                        }
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        loadMessages();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
