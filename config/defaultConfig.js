@@ -5,7 +5,9 @@ module.exports = {
   dataDirectory: "./data",
   homeAssistant: {
     host: "localhost",
-    port: 8123
+    port: 8123,
+    notifyWebhook: "notify_webhook",
+    acceptWebhook: "accept_webhook"
   },
   ollama: {
     host: "localhost",

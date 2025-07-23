@@ -7,7 +7,12 @@ class MessageGenerator {
   constructor(config = CONFIG) {
     this.dataStore = new DataStore(config.dataDirectory);
     this.ollama = new OllamaClient(config.ollama.host, config.ollama.port);
-    this.homeAssistant = new HomeAssistantClient(config.homeAssistant.host, config.homeAssistant.port);
+    this.homeAssistant = new HomeAssistantClient(
+      config.homeAssistant.host,
+      config.homeAssistant.port,
+      config.homeAssistant.notifyWebhook,
+      config.homeAssistant.acceptWebhook
+    );
     this.config = config;
   }
 
@@ -39,13 +44,14 @@ class MessageGenerator {
     console.log('Generating message with prompt length:', hydratedPrompt.length);
     const generatedText = await this.ollama.generate(hydratedPrompt, this.config.ollama.model);
     const message = await this.dataStore.storeMessage(generatedText, special);
-    await this.homeAssistant.notify(generatedText, 'New Generated Message');
+    await this.homeAssistant.notify(generatedText);
     console.log('Generated and stored message:', message);
     return message;
   }
 
   async accept(text) {
     await this.dataStore.acceptMessage(text);
+    await this.homeAssistant.accept(text);
     console.log('Accepted message:', text);
   }
 

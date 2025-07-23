@@ -780,6 +780,14 @@
                             <label class="config-label">Home Assistant Port:</label>
                             <input type="number" class="form-control" id="haPort" value="${config.homeAssistant.port}">
                         </div>
+                        <div class="config-group">
+                            <label class="config-label">HA Notify Webhook:</label>
+                            <input type="text" class="form-control" id="haNotifyWebhook" value="${config.homeAssistant.notifyWebhook || ''}">
+                        </div>
+                        <div class="config-group">
+                            <label class="config-label">HA Accept Webhook:</label>
+                            <input type="text" class="form-control" id="haAcceptWebhook" value="${config.homeAssistant.acceptWebhook || ''}">
+                        </div>
                         <button class="btn btn-warning" onclick="saveConfig()" style="margin-top: 1rem;">
                             <i class="fas fa-save"></i>
                             Save Configuration
@@ -953,7 +961,9 @@
                 },
                 homeAssistant: {
                     host: document.getElementById('haHost').value,
-                    port: parseInt(document.getElementById('haPort').value)
+                    port: parseInt(document.getElementById('haPort').value),
+                    notifyWebhook: document.getElementById('haNotifyWebhook').value,
+                    acceptWebhook: document.getElementById('haAcceptWebhook').value
                 },
                 systemPrompts: {
                     default: document.getElementById('defaultPrompt').value,
