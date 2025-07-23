@@ -1,5 +1,4 @@
 const fs = require('fs').promises;
-const fsSync = require('fs');
 const crypto = require('crypto');
 
 class LockManager {

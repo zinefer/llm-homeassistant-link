@@ -454,6 +454,99 @@
         .collapse-toggle.collapsed i {
             transform: rotate(-90deg);
         }
+        /* --- System Prompt Tabs CSS --- */
+        .tab-wrapper {
+            border-radius: 0.75rem;
+            background: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            padding-left: 0.75rem;
+            background: white;
+            position: relative;
+        }
+
+        .tab {
+            background: #f3f4f6;
+            border: 1px solid transparent;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-light);
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: -8px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+
+        .tab:hover:not(.active) {
+            background: #e2e8f0;
+        }
+
+        .tab.active {
+            padding: 0.75rem 1.2rem;
+            background: white;
+            color: var(--primary);
+            font-weight: 600;
+            border: 1px solid #cbd5e1;
+            border-bottom-color: white;
+            z-index: 1;
+            position: relative;
+            margin-bottom: -9px;
+        }
+
+        .tab-content {
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid #cbd5e1;
+            border-radius: 0 0 0.75rem 0.75rem;
+            /* z-index: 1; */
+            position: relative;
+            border: 1px solid #cbd5e1;
+        }
+
+        .tab.secondary {
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .prompt-editor {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .prompt-textarea {
+            min-height: 30vh;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            resize: vertical;
+            overflow-y: auto;
+            background: #f9fafb;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 0.75rem;
+            field-sizing: content;;
+        }
     </style>
 </head>
 <body>
@@ -472,7 +565,6 @@
                             Generate Messages
                         </div>
                     </div>
-                    
                     <div class="generate-section">
                         <button class="btn btn-primary" onclick="generate(false)">
                             <i class="fas fa-message"></i>
@@ -484,19 +576,50 @@
                         </button>
                     </div>
                 </div>
-                
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i class="fas fa-inbox"></i>
-                            Pending Messages
+                    <div class="tab-wrapper">
+                        <div class="tabs">
+                            <button class="tab primary active" onclick="switchTab('messages')">
+                                <i class="fas fa-inbox"></i>
+                                Pending Messages
+                            </button>
+                            <button class="tab secondary" onclick="switchTab('regular-prompt')">
+                                <i class="fas fa-message"></i>
+                                Regular Prompt
+                            </button>
+                            <button class="tab secondary" onclick="switchTab('special-prompt')">
+                                <i class="fas fa-star"></i>
+                                Special Prompt
+                            </button>
                         </div>
-                        <div class="refresh-indicator" id="refresh-indicator"></div>
-                    </div>
-                    <div id="messages">
-                        <div class="loading">
-                            <div class="spinner"></div>
-                            Loading messages...
+                        <div id="tab-messages" class="tab-content active">
+                            <div class="refresh-indicator" id="refresh-indicator"></div>
+                            <div id="messages">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                    Loading messages...
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-regular-prompt" class="tab-content">
+                            <div class="prompt-editor">
+                                <label class="config-label">Regular Message System Prompt:</label>
+                                <textarea class="form-control prompt-textarea" id="defaultPrompt" placeholder="Enter the system prompt for regular messages..."></textarea>
+                                <button class="btn btn-warning" onclick="savePrompt('default')">
+                                    <i class="fas fa-save"></i>
+                                    Save Regular Prompt
+                                </button>
+                            </div>
+                        </div>
+                        <div id="tab-special-prompt" class="tab-content">
+                            <div class="prompt-editor">
+                                <label class="config-label">Special Message System Prompt:</label>
+                                <textarea class="form-control prompt-textarea" id="specialPrompt" placeholder="Enter the system prompt for special messages..."></textarea>
+                                <button class="btn btn-warning" onclick="savePrompt('special')">
+                                    <i class="fas fa-save"></i>
+                                    Save Special Prompt
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -614,13 +737,15 @@
             try {
                 const response = await fetch('/api/config');
                 const config = await response.json();
-                
+
+                // Set author select
                 const authorSelect = document.getElementById('commentAuthor');
                 authorSelect.options[0].value = config.userA;
                 authorSelect.options[0].text = config.userA;
                 authorSelect.options[1].value = config.userB;
                 authorSelect.options[1].text = config.userB;
 
+                // Only show other config fields in config section (no system prompt fields)
                 document.getElementById('config-form').innerHTML = `
                     <div class="config-grid">
                         <div class="config-group">
@@ -655,20 +780,16 @@
                             <label class="config-label">Home Assistant Port:</label>
                             <input type="number" class="form-control" id="haPort" value="${config.homeAssistant.port}">
                         </div>
-                        <div class="config-group">
-                            <label class="config-label">Default System Prompt:</label>
-                            <textarea class="form-control form-textarea" id="defaultPrompt">${config.systemPrompts.default}</textarea>
-                        </div>
-                        <div class="config-group">
-                            <label class="config-label">Special System Prompt:</label>
-                            <textarea class="form-control form-textarea" id="specialPrompt">${config.systemPrompts.special}</textarea>
-                        </div>
                         <button class="btn btn-warning" onclick="saveConfig()" style="margin-top: 1rem;">
                             <i class="fas fa-save"></i>
                             Save Configuration
                         </button>
                     </div>
                 `;
+
+                // Also populate the prompt tabs
+                document.getElementById('defaultPrompt').value = config.systemPrompts.default;
+                document.getElementById('specialPrompt').value = config.systemPrompts.special;
             } catch (error) {
                 document.getElementById('config-form').innerHTML = `
                     <div class="empty-state">
@@ -677,6 +798,53 @@
                         <p>${error.message}</p>
                     </div>
                 `;
+            }
+        }
+        // --- New Tab Switching Logic for System Prompt Tabs ---
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show selected tab content
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            // Add active class to selected tab
+            event.target.classList.add('active');
+        }
+
+        // --- New Save Prompt Logic for System Prompt Tabs ---
+        async function savePrompt(type) {
+            const promptText = document.getElementById(`${type === 'default' ? 'defaultPrompt' : 'specialPrompt'}`).value;
+            const btn = event.target;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div> Saving...';
+            btn.disabled = true;
+            try {
+                // Get current config first
+                const configResponse = await fetch('/api/config');
+                const config = await configResponse.json();
+                // Update the specific prompt
+                config.systemPrompts[type] = promptText;
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                if (response.ok) {
+                    showStatus(`${type === 'default' ? 'Regular' : 'Special'} prompt saved successfully!`, 'success');
+                } else {
+                    const error = await response.text();
+                    showStatus('Error saving prompt: ' + error, 'error');
+                }
+            } catch (error) {
+                showStatus('Error saving prompt: ' + error.message, 'error');
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
             }
         }
         
